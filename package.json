@@ -1,0 +1,28 @@
+{
+  "name": "haven-adapters",
+  "version": "0.1.0",
+  "description": "Chain & provider adapters for the Sovereign Agent kernel — Ethereum, XMTP, LM Studio",
+  "type": "module",
+  "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./ethereum": "./src/ethereum/EthereumCryptoAdapter.ts",
+    "./xmtp": "./src/xmtp/XmtpChannel.ts",
+    "./providers/lmstudio": "./src/providers/LmStudioProvider.ts"
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "haven-core": "file:../haven-core",
+    "@lmstudio/sdk": "^1.5.0",
+    "@xmtp/node-sdk": "^6.0.0",
+    "viem": "^2.47.6"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}
