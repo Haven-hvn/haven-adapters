@@ -9,7 +9,7 @@ Every adapter implements a kernel interface for a specific chain, messaging prot
 | Adapter | Interface | Dependencies |
 |---------|-----------|-------------|
 | `EthereumCryptoAdapter` | `CryptoAdapter` | `viem` |
-| `XmtpChannel` | `ChatChannel` (Machine) | `@xmtp/node-sdk`, `viem` |
+| `XmtpChannel` | `ChatChannel` (Machine) | `@xmtp/node-sdk` |
 | `LmStudioProvider` | LLM Provider (Machine) | `@lmstudio/sdk` |
 
 ## Usage
@@ -33,7 +33,11 @@ kernel.agent.setProvider(lmProvider);
 
 // Add XMTP messaging
 const xmtp = new XmtpChannel(kernel.registry, kernel.bus, {
-  privateKey: "0x...",
+  walletAddress: "0xabc...",
+  signMessage: async (message) => {
+    // Route signing through WalletIdentity in the host app.
+    throw new Error(`Implement WalletIdentity bridge for: ${message}`);
+  },
   xmtpEnv: "dev",
 });
 await xmtp.initialize();

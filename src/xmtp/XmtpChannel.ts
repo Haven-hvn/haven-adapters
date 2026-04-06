@@ -6,7 +6,7 @@
  * States: Disconnected → Connecting → Connected → Reconnecting → Connected
  *
  * Design:
- *   - Creates XMTP client using the agent's wallet key
+ *   - Creates XMTP client using wallet identity signing callbacks
  *   - Incoming XMTP messages → InboundMessage → ePublishInbound to MessageBus
  *   - eOutboundMessage from MessageBus → XMTP sendGroupText
  *   - Deduplicates messages before publishing (XMTP can deliver duplicates)
@@ -32,13 +32,12 @@ import {
   createBackend,
   getInboxIdForIdentifier,
 } from "@xmtp/node-sdk";
-import { hexToBytes, type Hex } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
 import { IdentifierKind } from "@xmtp/node-sdk";
 
 /** Configuration for XmtpChannel. */
 export interface XmtpChannelConfig {
-  privateKey: Hex;
+  walletAddress: string;
+  signMessage: (message: string) => Promise<Uint8Array>;
   xmtpEnv: XmtpEnv;
   dbPath?: string;
   dbEncryptionKey?: Uint8Array;
@@ -111,19 +110,8 @@ export class XmtpChannel extends Machine {
       .onEntry(async () => {
         this.log("Connecting to XMTP...");
         try {
-          // Create XMTP signer from private key (same pattern as shoutbox-bot xmtpSigner.ts)
-          const account = privateKeyToAccount(this.config.privateKey);
-          const signer: Signer = {
-            type: "EOA",
-            getIdentifier: () => ({
-              identifier: account.address.toLowerCase(),
-              identifierKind: IdentifierKind.Ethereum,
-            }),
-            signMessage: async (message: string) => {
-              const sig = await account.signMessage({ message });
-              return hexToBytes(sig);
-            },
-          };
+          // Signer is provided through WalletIdentity boundary via config.signMessage.
+          const signer = this.buildSigner();
 
           const options: ClientOptions = {
             env: this.config.xmtpEnv,
@@ -376,6 +364,19 @@ export class XmtpChannel extends Machine {
     this.log(`Revoking ${installationIds.length} old installation(s)...`);
     await Client.revokeInstallations(signer, inboxId, installationIds, backend);
     this.log("Old installations revoked");
+  }
+
+  private buildSigner(): Signer {
+    return {
+      type: "EOA",
+      getIdentifier: () => ({
+        identifier: this.config.walletAddress.toLowerCase(),
+        identifierKind: IdentifierKind.Ethereum,
+      }),
+      signMessage: async (message: string) => {
+        return this.config.signMessage(message);
+      },
+    };
   }
 
   // ==========================================================================
