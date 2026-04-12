@@ -63,4 +63,4 @@ Uses `file:../haven-core` for local development. For production, publish to npm 
 ## Related Repos
 
 - **[haven-core](../haven-core)** — The sovereign agent kernel (5 core state machines)
-- **[web3-shoutbox-platform](../../)** — Shoutbox web app + sovereign bot (first application)
+- **[web3-shoutbox-platform](https://github.com/HavenCTO/web3-shoutbox-platform)** — Shoutbox web app + sovereign bot (first application)
