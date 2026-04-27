@@ -17,7 +17,10 @@
   "dependencies": {
     "haven-core": "file:../haven-core",
     "@lmstudio/sdk": "^1.5.0",
+    "@nucypher/nucypher-core": "^0.14.0",
+    "@nucypher/taco": "^0.6.0",
     "@xmtp/node-sdk": "^6.0.0",
+    "ethers": "^5.7.2",
     "viem": "^2.47.6"
   },
   "devDependencies": {
